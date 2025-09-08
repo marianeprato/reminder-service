@@ -16,7 +16,6 @@ public class ApplicationIT {
 
     @Test
     void contextLoads() {
-        // sanity check that the Spring context starts
     }
 
     @Test
