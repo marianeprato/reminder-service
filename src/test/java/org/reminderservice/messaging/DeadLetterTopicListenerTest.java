@@ -15,7 +15,7 @@ class DeadLetterTopicListenerTest {
     private final DeadLetterTopicListener listener = new DeadLetterTopicListener();
 
     private ConsumerRecord<String, String> recordWithHeaders(String key, String value) {
-        ConsumerRecord<String, String> record = new ConsumerRecord<>("task-created.DLT", 0, 0L, key, value);
+        ConsumerRecord<String, String> record = new ConsumerRecord<>("task-created-dlt", 0, 0L, key, value);
         record.headers().add(new RecordHeader("kafka_dlt-exception-fqcn",
                 "java.lang.RuntimeException".getBytes(StandardCharsets.UTF_8)));
         record.headers().add(new RecordHeader("kafka_dlt-exception-message",
@@ -67,7 +67,7 @@ class DeadLetterTopicListenerTest {
 
     @Test
     void toleratesMissingHeaders() {
-        ConsumerRecord<String, String> record = new ConsumerRecord<>("task-created.DLT", 0, 0L, "key", "{}");
+        ConsumerRecord<String, String> record = new ConsumerRecord<>("task-created-dlt", 0, 0L, "key", "{}");
 
         listener.onDeadLetter(record);
 

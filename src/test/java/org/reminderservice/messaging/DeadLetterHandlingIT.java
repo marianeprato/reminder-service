@@ -40,14 +40,14 @@ import static org.mockito.Mockito.when;
  * Proves the full failure path: a record that always fails processing gets
  * retried (DefaultErrorHandler, 3 retries / 1s backoff -- see
  * KafkaConsumerConfig), then, once retries are exhausted, published to the
- * "task-created.DLT" topic by DeadLetterPublishingRecoverer and picked up by
+ * "task-created-dlt" topic by DeadLetterPublishingRecoverer and picked up by
  * DeadLetterTopicListener. ReminderService is mocked here specifically to
  * force a deterministic failure; everything else (Kafka, Postgres, the real
  * listener/error-handler/recoverer wiring) is real.
  */
 @SpringBootTest
 @Testcontainers
-@EmbeddedKafka(partitions = 1, topics = {"task-created", "task-created.DLT"})
+@EmbeddedKafka(partitions = 1, topics = {"task-created", "task-created-dlt"})
 @TestPropertySource(properties = "spring.kafka.bootstrap-servers=${spring.embedded.kafka.brokers}")
 class DeadLetterHandlingIT {
 

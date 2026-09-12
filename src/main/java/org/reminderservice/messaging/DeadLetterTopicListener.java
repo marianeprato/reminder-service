@@ -30,7 +30,7 @@ public class DeadLetterTopicListener {
     private final Deque<DeadLetterEntry> recentEntries = new ConcurrentLinkedDeque<>();
 
     @KafkaListener(
-            topics = "${app.kafka.topic.task-created}.DLT",
+            topics = "${app.kafka.topic.task-created}-dlt",
             groupId = "reminder-service-dlt",
             properties = {
                     "value.deserializer=org.apache.kafka.common.serialization.StringDeserializer"

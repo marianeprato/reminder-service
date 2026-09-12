@@ -30,7 +30,7 @@ flowchart LR
 
     subgraph KAFKA["Kafka"]
         TOPIC[/"task-created" topic/]
-        DLT[/"task-created.DLT" topic/]
+        DLT[/"task-created-dlt" topic/]
     end
 
     subgraph RS["reminder-service :8081"]
@@ -78,7 +78,7 @@ side) to look up reminders for a task on demand.
 **Failure handling.** A record that throws while being processed is
 retried by a `DefaultErrorHandler` (3 attempts, 1 second apart). If it
 keeps failing, `DeadLetterPublishingRecoverer` publishes it to
-`task-created.DLT` with diagnostic headers (original topic, exception
+`task-created-dlt` with diagnostic headers (original topic, exception
 class and message) rather than dropping it. `DeadLetterTopicListener`
 logs each dead-lettered record and keeps the most recent 50 in memory,
 exposed via `GET /dead-letters` for inspection — a lightweight aid, not a

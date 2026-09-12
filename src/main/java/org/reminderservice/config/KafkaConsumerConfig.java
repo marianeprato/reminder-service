@@ -12,7 +12,7 @@ public class KafkaConsumerConfig {
 
     /**
      * After a record fails 3 times (1s apart), it's published to
-     * "<original-topic>.DLT" (DeadLetterPublishingRecoverer's default naming)
+     * "<original-topic>-dlt" (DeadLetterPublishingRecoverer's default naming)
      * instead of just being logged and skipped, so it isn't silently lost --
      * see DeadLetterTopicListener for how it's inspected afterwards.
      */
