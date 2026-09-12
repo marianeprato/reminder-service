@@ -10,6 +10,7 @@ import org.reminderservice.repository.ReminderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.serializer.JsonSerializer;
@@ -17,6 +18,9 @@ import org.springframework.kafka.test.EmbeddedKafkaBroker;
 import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.kafka.test.utils.KafkaTestUtils;
 import org.springframework.test.context.TestPropertySource;
+import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -32,12 +36,17 @@ import static org.awaitility.Awaitility.await;
  * End-to-end check of the async task-created -> reminder-created flow: a
  * real event is published onto an embedded broker and consumed by the
  * actual {@link TaskCreatedEventListener} bean, which must land a persisted
- * {@link Reminder} row.
+ * {@link Reminder} row in a real Postgres (Testcontainers).
  */
 @SpringBootTest
+@Testcontainers
 @EmbeddedKafka(partitions = 1, topics = {"task-created"})
 @TestPropertySource(properties = "spring.kafka.bootstrap-servers=${spring.embedded.kafka.brokers}")
 class TaskCreatedEventConsumerIT {
+
+    @Container
+    @ServiceConnection
+    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16-alpine");
 
     @Autowired
     private EmbeddedKafkaBroker embeddedKafkaBroker;
