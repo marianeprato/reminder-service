@@ -1,5 +1,7 @@
 package org.reminderservice.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.reminderservice.dto.ReminderRequest;
@@ -22,11 +24,14 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/reminders")
 @RequiredArgsConstructor
+@Tag(name = "Reminders", description = "Create and query reminders. Most reminders are created " +
+        "asynchronously from task-service's TaskCreated Kafka event; this REST API also works standalone.")
 public class ReminderController {
 
     private final ReminderService reminderService;
 
     @PostMapping
+    @Operation(summary = "Create a reminder directly via REST")
     public ResponseEntity<ReminderResponse> createReminder(@RequestBody ReminderRequest request) {
         log.info("Received reminder request for taskId: {}, message: {}", request.taskId(), request.message());
         ReminderResponse response = reminderService.createReminder(request);
@@ -35,12 +40,14 @@ public class ReminderController {
     }
 
     @GetMapping("/{taskId}")
+    @Operation(summary = "Get all reminders for a task")
     public ResponseEntity<List<ReminderResponse>> getReminderByTaskId(@PathVariable("taskId") UUID taskId) {
         List<ReminderResponse> reminders = reminderService.getRemindersForTask(taskId);
         return ResponseEntity.ok(reminders);
     }
 
     @GetMapping("/id/{reminderId}")
+    @Operation(summary = "Get a single reminder by its id")
     public ResponseEntity<ReminderResponse> getReminderById(@PathVariable("reminderId") long reminderId) {
         ReminderResponse reminder = reminderService.getReminderById(reminderId);
         return ResponseEntity.ok(reminder);
@@ -48,6 +55,7 @@ public class ReminderController {
 
 
     @GetMapping
+    @Operation(summary = "List all reminders")
     public ResponseEntity<List<Reminder>> getAllReminders() {
         List<Reminder> reminders = reminderService.getAllReminders();
         return ResponseEntity.ok(reminders);
