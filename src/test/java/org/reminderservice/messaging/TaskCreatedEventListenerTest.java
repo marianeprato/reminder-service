@@ -10,6 +10,7 @@ import org.reminderservice.dto.ReminderRequest;
 import org.reminderservice.event.TaskCreatedEvent;
 import org.reminderservice.service.ReminderService;
 
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.UUID;
@@ -35,12 +36,40 @@ class TaskCreatedEventListenerTest {
                 LocalDate.now().plusDays(1), "HIGH", Instant.now()
         );
 
-        listener.onTaskCreated(event);
+        listener.onTaskCreated(event, "test-correlation-id".getBytes(StandardCharsets.UTF_8));
 
         ArgumentCaptor<ReminderRequest> captor = ArgumentCaptor.forClass(ReminderRequest.class);
         verify(reminderService, times(1)).createReminder(captor.capture());
 
         assertThat(captor.getValue().taskId()).isEqualTo(taskId);
         assertThat(captor.getValue().message()).contains("Write report");
+    }
+
+    @Test
+    void createsReminderEvenWhenCorrelationIdHeaderIsMissing() {
+        UUID taskId = UUID.randomUUID();
+        TaskCreatedEvent event = new TaskCreatedEvent(
+                taskId, "Write report", "Quarterly report",
+                LocalDate.now().plusDays(1), "HIGH", Instant.now()
+        );
+
+        listener.onTaskCreated(event, null);
+
+        verify(reminderService, times(1)).createReminder(org.mockito.ArgumentMatchers.any());
+    }
+
+    @Test
+    void resolvesCorrelationIdFromHeaderWhenPresent() {
+        String result = TaskCreatedEventListener.resolveCorrelationId(
+                "abc-123".getBytes(StandardCharsets.UTF_8));
+
+        assertThat(result).isEqualTo("abc-123");
+    }
+
+    @Test
+    void generatesCorrelationIdWhenHeaderMissing() {
+        String result = TaskCreatedEventListener.resolveCorrelationId(null);
+
+        assertThat(result).isNotBlank();
     }
 }
